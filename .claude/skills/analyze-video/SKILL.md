@@ -9,7 +9,8 @@ Turns the raw clip in `input/` into `analysis/beat-plan.md` — the source of tr
 
 ## Run it
 1. `bash scripts/analyze.sh input/<clip>.mp4 > analysis/beats.json`
-   - Uses the native **Gemini File API** (resumable upload → `gemini-3.5-flash:generateContent`) with a `file_data` part, structured-JSON output. One key: `GEMINI_API_KEY`.
+   - **Primary (best):** native **Gemini File API** (resumable upload → `gemini-3.5-flash:generateContent`), full video **+ audio**, structured JSON. Key: `GEMINI_API_KEY`.
+   - **Fallback (no Gemini key):** `python3 scripts/analyze_frames.py input/<clip>.mp4 2` — samples frames and sends them to `gemini-3.5-flash` via **OpenRouter** (`OPENROUTER_API_KEY`). Frames only (no audio), but proven to return a solid beat plan. Use when you have an OpenRouter key instead of a Gemini one.
 2. **Convert + write the plan.** Each beat comes back as `{start:"MM:SS", end:"MM:SS", beat_type, reason, suggestion}`. Convert MM:SS → seconds (`mm*60+ss`) and write `analysis/beat-plan.md` as the table below.
 3. Also record the **input aspect**: `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 input/<clip>.mp4` → note `16:9` or `9:16` (map anything else to nearest for Omni).
 
