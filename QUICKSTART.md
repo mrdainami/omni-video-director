@@ -1,14 +1,15 @@
 # Quickstart (~5 min)
 
-## 1. Get your keys
-- **kie.ai** (generation — Omni + GPT-Image-2): sign up at https://kie.ai → API keys → copy. Pay-as-you-go; you'll add a few dollars of credits.
-- **Gemini** (analysis): https://aistudio.google.com/apikey → create key (free tier is enough to start).
+## 1. Get your keys (just two)
+- **kie.ai** (generation — Omni + GPT-Image-2): https://kie.ai → API keys. Pay-as-you-go; add a few dollars of credits.
+- **OpenRouter** (analysis — Gemini 3.5 Flash, audio-aware): https://openrouter.ai/keys. Cheap; cents per video.
 
 Set them in your shell (add to `~/.zshrc` to persist):
 ```bash
 export KIE_API_KEY="sk-..."
-export GEMINI_API_KEY="AI..."
+export OPENROUTER_API_KEY="sk-or-..."
 ```
+*(Optional: for videos longer than ~4 min you can add a native `GEMINI_API_KEY` from https://aistudio.google.com/apikey and use `scripts/analyze_native.sh` instead — handles up to ~1hr.)*
 
 ## 2. Install the basics
 ```bash

@@ -8,13 +8,23 @@ description: Cut a beat's segment out of the source, and drop the generated asse
 Two jobs, one skill: **cut** the segment before generating, **place** the asset after the user approves.
 
 ## Cut (before generation)
-Extract the beat window into `assets/<beat>/src.mp4` (Omni needs a ≤10s clip):
+Extract the beat window into `assets/<beat>/src.mp4` (Omni needs a ≤10s clip). **KEEP the audio** (`-c:a aac`, never `-an`) — we re-lay it after Omni:
 ```bash
 ffmpeg -i input/<clip>.mp4 -ss <start_sec> -to <end_sec> \
-  -c:v libx264 -r 30 -g 30 -keyint_min 30 -pix_fmt yuv420p -movflags +faststart \
+  -c:v libx264 -r 30 -g 30 -keyint_min 30 -pix_fmt yuv420p -c:a aac -movflags +faststart \
   assets/<beat>/src.mp4
 ```
 Dense keyframes (`-g 30`) matter — sparse keyframes make the face freeze on seek downstream.
+
+> **Also keep the original audio around separately** — `ffmpeg -ss <start> -to <end> -i input/<clip>.mp4 -vn -c:a aac assets/<beat>/orig-audio.m4a` — you'll mux it back over the Omni output (next).
+
+## Restore the real voice (right after an Omni clip lands) — REQUIRED for vfx
+**Omni regenerates the audio track — it will replace the speaker's voice with a synthetic one.** Never ship Omni's audio. Because Omni preserves timing, the original audio lines up exactly, so re-lay it:
+```bash
+ffmpeg -i assets/<beat>/out.mp4 -i assets/<beat>/orig-audio.m4a \
+  -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -shortest assets/<beat>/out-voiced.mp4
+```
+Use `out-voiced.mp4` as the beat's asset. (If the source window truly had no speech, Omni's audio can be dropped entirely instead.)
 
 ## Place (after GATE 2)
 Drop the approved asset back onto the timeline. Two cases:

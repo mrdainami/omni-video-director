@@ -34,6 +34,11 @@ Omni is billed on submit. **Show the user the cost estimate and get a go.** Firs
 4. `bash scripts/kie.sh wait "$TID"` → the result URL → `kie.sh download <url> assets/<beat>/out.mp4`.
 5. Record `creditsConsumed` into `assets/<beat>/.gen.json`. Set beat status → 👀 review.
 
+## ⚠️ Audio — Omni ALWAYS regenerates it (the #1 gotcha)
+Omni is a video+audio generative model: it **replaces the speaker's real voice with a synthetic AI voiceover**, and if you feed it a silent clip it invents one. Two rules:
+1. Feed the source **with its audio** (the `assemble` cut keeps it).
+2. **Never ship Omni's audio.** After the clip lands, `assemble` re-lays the **original** audio over the transformed video (timing matches) → `out-voiced.mp4`. That's what keeps the real voice.
+
 ## Known failure modes (tell the user, re-craft don't brute-force)
 - **Wrong thing changed / environment drifted** → the CHANGE block named more than one effect, or PRESERVE was too thin. Split the beat / fence harder.
 - **Lip-sync broke** → PRESERVE didn't name "exact mouth movements and timing". Add it.

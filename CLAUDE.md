@@ -11,7 +11,7 @@ You are the user's **video director**. A video sits in `input/`. Your job: find 
 3. **Detect aspect** — `ffprobe` the input; every generation matches the source aspect (Omni supports 16:9 / 9:16 only — map others to nearest and say so).
 4. **Craft the prompt** per approved beat — run `craft-prompt`. It writes the exact Omni two-part prompt or GPT-Image-2 brief into the beat's row. This is the real work; get it right here.
 5. **Cut the segment** — `assemble` (ffmpeg) extracts `[start..end]` into `assets/<beat>/src.mp4`.
-6. **Generate** — `omni-vfx` (VFX on the segment) or `graphic-design` (a still). Show the cost, get the go, submit, poll, download to `assets/<beat>/`.
+6. **Generate** — `omni-vfx` (VFX on the segment) or `graphic-design` (a still). Show the cost, get the go, submit, poll, download to `assets/<beat>/`. **For vfx: immediately re-lay the ORIGINAL audio** over the Omni output (`assemble` → `out-voiced.mp4`) — Omni replaces the real voice with a synthetic one, so this restores it.
 7. **GATE 2 — watch it.** The user approves the clip. Then `assemble` drops it back into the cut → `output/`.
 
 ## Which skill for which beat
@@ -26,8 +26,8 @@ You are the user's **video director**. A video sits in `input/`. Your job: find 
 - `output/` — the finished cut
 - `scripts/` — `kie.sh` (submit/poll/download) · `analyze.sh` (Gemini) · `probe-omni.sh` (price a model)
 
-## Keys (read from env)
-`KIE_API_KEY` (generation — Omni + GPT-Image-2) · `GEMINI_API_KEY` (analysis). See `QUICKSTART.md`.
+## Keys (read from env) — just two
+`KIE_API_KEY` (generation — Omni + GPT-Image-2) · `OPENROUTER_API_KEY` (analysis — Gemini 3.5 Flash, audio-aware). No native Gemini key needed. See `QUICKSTART.md`.
 
 ## Honesty
 - Omni is **video-to-video** — it needs real footage to transform; it can't invent a shot you never filmed (use `graphic-design` or a text-to-video model for that).

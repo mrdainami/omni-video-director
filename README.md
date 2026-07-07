@@ -21,7 +21,7 @@ See **[QUICKSTART.md](QUICKSTART.md)** — get a kie key, drop a clip, run it. ~
 ## What you need
 - [Claude Code](https://claude.com/claude-code)
 - A **kie.ai** API key (pay-as-you-go; Omni + GPT-Image-2 both live here)
-- A **Gemini** API key for the analysis step (Google AI Studio — free tier works)
+- An **OpenRouter** API key (the analysis step — Gemini 3.5 Flash, audio-aware; cents per video)
 - `ffmpeg` + `node` (for the assembly step)
 
 > Honest heads-up: **Omni is video-to-video** — it transforms footage you already shot. You need a real clip to point it at. And generation costs kie credits (the exact price prints when you submit).
