@@ -40,6 +40,7 @@ Omni is a video+audio generative model: it **replaces the speaker's real voice w
 2. **Never ship Omni's audio.** After the clip lands, `assemble` re-lays the **original** audio over the transformed video (timing matches) → `out-voiced.mp4`. That's what keeps the real voice.
 
 ## Known failure modes (tell the user, re-craft don't brute-force)
+- **Character PLACEMENT isn't controllable** (proven): Omni will add a character but drops it wherever it likes (e.g. by the face, not the shoulder) and keeps it flat, not physically interacting. For a character on a *specific* spot or a hand-interaction (climb/swipe), use a **HyperFrames overlay** with a real mascot asset, NOT Omni. Omni shines on transforming what's already in frame (materials, transparency, set, wardrobe).
 - **Wrong thing changed / environment drifted** → the CHANGE block named more than one effect, or PRESERVE was too thin. Split the beat / fence harder.
 - **Lip-sync broke** → PRESERVE didn't name "exact mouth movements and timing". Add it.
 - **Garbled text** → Omni can't do text. Move it to a `graphic-design` beat.
