@@ -25,6 +25,8 @@ optics/materials/physics>.
 4. **Describe events, not adjectives.** "the can catches the key light as he turns it" beats "smooth, stable, cinematic" (which renders dead).
 5. **Source window ≤ 10s**, ≤ 30s file. Aspect 16:9 or 9:16 only. Default `1080p` for edit-ready (720p is cheaper for probing).
 
+**Multiple effects in one gen (proven):** temporally-separated beats (a mascot early, a bottle transform late) work in ONE ≤10s gen. Even two SIMULTANEOUS changes held (bottle→glass + a beard appearing together at the tilt). So a whole short clip with several beats can be one generation — the "one effect" caution is really "don't carelessly stack unrelated changes on the same subject," not "never combine." Write each beat with its trigger ("as he tilts…").
+
 **Timing / sequences (confirmed):** Omni has **no per-second timing parameter** — but it *does* follow a **narrative sequence written in words** across the ≤10s window. Use "first… then… as they arrive…" and it plays out in order (proven: "screen erupts into lightning, *then* two mascots run in, *then* a card pops up" rendered exactly that order). You direct order + beats with words, not timestamps.
 
 **Inserting a character/object (confirmed):** pass it as a reference in `image_urls` and describe it ("small pixel mascots that look exactly like the reference image") — Omni injects it into the moving scene. Real logos/mascots as clean PNGs.
