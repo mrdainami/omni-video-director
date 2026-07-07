@@ -1,0 +1,15 @@
+# secrets
+.env
+*.key
+# user media + generations (kit ships empty)
+input/*.mp4
+input/*.mov
+assets/*/
+output/*.mp4
+analysis/*.json
+analysis/beat-plan.md
+*.taskid
+.gen.json
+# os
+.DS_Store
+node_modules/
