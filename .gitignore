@@ -13,3 +13,9 @@ analysis/beat-plan.md
 # os
 .DS_Store
 node_modules/
+
+# hf test media / renders
+hf/assets/*.mp4
+hf/assets/*.png
+hf/*.mp4
+hf/renders/

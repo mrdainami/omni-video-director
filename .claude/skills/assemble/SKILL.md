@@ -31,24 +31,35 @@ Drop the approved asset back onto the timeline. Two cases:
 - **vfx (out.mp4)** — replaces the original window: the transformed segment takes the same in/out.
 - **graphic (out.png)** — overlays on top of the playing video for the beat's duration (full-screen or corner).
 
-Built on **HyperFrames** (deterministic HTML → MP4). Minimal composition: the source video on a base track, each asset as a `class="clip"` with `data-start` / `data-duration` / `data-track-index` (no two clips share a track). Then render.
+Built on **HyperFrames** (deterministic HTML → MP4, seek-safe). The kit already has the project wired in **`hf/`**: `index.html` (a working composition template), `gsap.min.js` (bundled, offline), `kit.css` (brand tokens), `assets/` (drop clips/graphics here). No `init` needed.
 
+### The contract (from `hf/index.html`)
+- Root: `<div id="root" data-composition-id="main" data-start="0" data-duration="<sec>" data-width data-height>`.
+- Every timed element: `class="clip"` + `data-start` + `data-duration` + `data-track-index`. **No two clips share a track at overlapping times.**
+- **Base video** on track 0: `<video class="clip" src="assets/base.mp4" muted style="…object-fit:cover">`. The clip's **audio** goes on its own track: `<audio class="clip" data-track-index="5" data-volume="1" src="assets/base.mp4">`.
+- **Animated overlays** (the reason we use HyperFrames — Omni/GPT-Image can't animate): a `class="clip"` div on its own track; animate it in the GSAP timeline. **Count-ups are seek-safe** via `gsap.to({v:0},{v:100,onUpdate:…})`. Never use `rAF` / `Date.now` / `Math.random`.
+
+### Multi-beat assembly
+- **A single Omni'd clip + graphics** → put the clip as the base, overlay each graphic at its `data-start`. (Proven: base beat + a `0→100%` count-up card.)
+- **Stitch several transformed segments** → either (a) lay each transformed segment on track 0 back-to-back at its real in-point, or (b) ffmpeg-`concat` the segments into one base first, then overlay graphics in HF. (a) is cleaner for cross-fades.
+
+### Render
 ```bash
-# one-time: npx hyperframes init  (creates the HyperFrames project)
-# author index.html: base <video> track + overlay clips at their timestamps
-npx hyperframes render . -o /tmp/avd/out.mp4     # render to /tmp, never in a synced folder
-cp /tmp/avd/out.mp4 output/<clip>-final.mp4
+npx hyperframes validate hf                       # optional: catches contract errors
+npx hyperframes render hf -o /tmp/avd-hf/out.mp4 -q draft   # draft to check; drop -q for standard/high
+cp /tmp/avd-hf/out.mp4 output/<clip>-final.mp4
 ```
+Draft render of a 7s clip ≈ **5 seconds**. Bump quality for the final: `-q high`.
 
-> ⚠️ **Render to `/tmp`, not into this repo if it's inside a synced folder** — HyperFrames writes thousands of temp frames; on Dropbox/iCloud that spikes RAM and can crash editors. Render in `/tmp`, copy only the MP4 back.
+> ⚠️ **Render output to `/tmp`, not into a synced folder** — HyperFrames writes many temp frames; on Dropbox/iCloud that spikes RAM. Render to `/tmp`, copy only the MP4 back. (The kit lives on `~/Desktop`, which is fine to author in; keep render *output* in /tmp.)
 
-## Simplest path (if HyperFrames isn't set up yet)
-For a quick proof, a plain ffmpeg overlay works for a graphic:
+## Quick ffmpeg fallback (static overlay only)
+If you just need a static PNG on a clip (no animation), ffmpeg is fine:
 ```bash
 ffmpeg -i input/<clip>.mp4 -i assets/<beat>/out.png \
   -filter_complex "[0][1]overlay=enable='between(t,<start>,<end>)'" output/draft.mp4
 ```
-HyperFrames is the upgrade for animated/branded overlays, captions, and multi-beat assembly.
+Use HyperFrames for anything animated (count-ups, mascot slide/swipe, transitions, captions).
 
 ## Status
 On place, set the beat → ✅ placed in `beat-plan.md`. When all beats are placed, the final is in `output/`.
