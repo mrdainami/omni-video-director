@@ -25,6 +25,12 @@ optics/materials/physics>.
 4. **Describe events, not adjectives.** "the can catches the key light as he turns it" beats "smooth, stable, cinematic" (which renders dead).
 5. **Source window ≤ 10s**, ≤ 30s file. Aspect 16:9 or 9:16 only. Default `1080p` for edit-ready (720p is cheaper for probing).
 
+**Timing / sequences (confirmed):** Omni has **no per-second timing parameter** — but it *does* follow a **narrative sequence written in words** across the ≤10s window. Use "first… then… as they arrive…" and it plays out in order (proven: "screen erupts into lightning, *then* two mascots run in, *then* a card pops up" rendered exactly that order). You direct order + beats with words, not timestamps.
+
+**Inserting a character/object (confirmed):** pass it as a reference in `image_urls` and describe it ("small pixel mascots that look exactly like the reference image") — Omni injects it into the moving scene. Real logos/mascots as clean PNGs.
+
+**Text on a card still garbles** — have Omni make the *blank card shape*, then overlay the real text as a clean graphic at assembly (proven: `WHAT AI DOES / for businesses` overlaid on Omni's blank card).
+
 **Skeleton to fill:**
 ```
 PRESERVE (do not change): the man's face, his exact mouth movements and timing, his
