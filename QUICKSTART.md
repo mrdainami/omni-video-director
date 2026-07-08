@@ -1,15 +1,31 @@
 # Quickstart (~5 min)
 
-## 1. Get your keys (just two)
-- **kie.ai** (generation — Omni + GPT-Image-2): https://kie.ai → API keys. Pay-as-you-go; add a few dollars of credits.
-- **OpenRouter** (analysis — Gemini 3.5 Flash, audio-aware): https://openrouter.ai/keys. Cheap; cents per video.
-
-Set them in your shell (add to `~/.zshrc` to persist):
+## 1. Add your two keys → `.env`
 ```bash
-export KIE_API_KEY="sk-..."
-export OPENROUTER_API_KEY="sk-or-..."
+cp .env.example .env      # then open .env and paste your keys
 ```
-*(Optional: for videos longer than ~4 min you can add a native `GEMINI_API_KEY` from https://aistudio.google.com/apikey and use `scripts/analyze_native.sh` instead — handles up to ~1hr.)*
+- **`KIE_API_KEY`** — generation (Omni + GPT-Image-2). Get it at https://kie.ai → API keys. Pay-as-you-go; add a few dollars.
+- **`OPENROUTER_API_KEY`** — analysis (Gemini 3.5 Flash, audio-aware). Get it at https://openrouter.ai/keys. Cents per video.
+
+That's it — every script reads `.env` automatically (it's gitignored, so your keys never get committed). No shell `export` needed.
+
+*(Optional: for videos over ~4 min, add `GEMINI_API_KEY` from https://aistudio.google.com/apikey to `.env` and use `scripts/analyze_native.sh`.)*
+
+### How the tools connect (only ONE is an MCP)
+| Tool | What it's for | How it connects |
+|---|---|---|
+| **kie** | Omni + GPT-Image-2 generation | `KIE_API_KEY` in `.env` (default) — **or** the optional [kie-mcp](https://github.com/mrdainami/kie-mcp) server, see below |
+| **OpenRouter** | Gemini reads your video | `OPENROUTER_API_KEY` in `.env`. Not an MCP — just a key. |
+| **HyperFrames** | assembles + renders the final | `npx hyperframes` (a CLI). Not an MCP — just needs Node. |
+| **ffmpeg** | cut clips + audio | a CLI. `brew install ffmpeg`. |
+
+**Optional — use the kie MCP instead of the key** (cleaner native tools in Claude Code):
+```bash
+git clone https://github.com/mrdainami/kie-mcp.git ~/mcp/kie-mcp
+cd ~/mcp/kie-mcp && npm install && npm run build
+claude mcp add --scope user kie --env KIE_API_KEY=YOUR_KEY -- node ~/mcp/kie-mcp/dist/index.js
+```
+With the MCP added, Claude uses `kie_*` tools directly; without it, the kit's `scripts/kie.sh` does the same over HTTP. Either works — same `KIE_API_KEY`.
 
 ## 2. Install the basics
 ```bash

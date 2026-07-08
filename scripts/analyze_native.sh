@@ -3,7 +3,8 @@
 # Native Gemini File API (resumable upload -> generateContent). One key: GEMINI_API_KEY.
 # Requires: curl + jq.  Usage: analyze.sh input/my-clip.mp4 > analysis/beats.json
 set -euo pipefail
-: "${GEMINI_API_KEY:?set GEMINI_API_KEY}"
+_ROOT="$(cd "$(dirname "$0")/.." && pwd)"; [ -f "$_ROOT/.env" ] && { set -a; . "$_ROOT/.env"; set +a; }
+: "${GEMINI_API_KEY:?GEMINI_API_KEY not set — add it to .env (only needed for the native long-video path)}"
 VIDEO="${1:?usage: analyze.sh <video.mp4>}"
 MODEL="gemini-3.5-flash"
 BASE="https://generativelanguage.googleapis.com"

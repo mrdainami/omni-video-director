@@ -8,10 +8,22 @@ Usage: OPENROUTER_API_KEY=... python3 analyze.py input/<clip>.mp4 > analysis/bea
 For very long videos (>~4 min) the base64 payload gets large — downscale harder or chunk
 (see analyze-video/SKILL.md). For a no-audio ultra-light fallback use analyze_frames.py.
 """
-import base64, json, os, subprocess, sys, tempfile, urllib.request
+import base64, json, os, subprocess, sys, tempfile, urllib.request, pathlib
+
+def _load_env():  # fill os.environ from the project-root .env (no dependency)
+    for d in (pathlib.Path.cwd(), pathlib.Path(__file__).resolve().parent.parent):
+        f = d / ".env"
+        if f.exists():
+            for ln in f.read_text().splitlines():
+                ln = ln.strip()
+                if ln and not ln.startswith("#") and "=" in ln:
+                    k, v = ln.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+            return
+_load_env()
 
 video = sys.argv[1]
-key = os.environ.get("OPENROUTER_API_KEY") or sys.exit("set OPENROUTER_API_KEY")
+key = os.environ.get("OPENROUTER_API_KEY") or sys.exit("OPENROUTER_API_KEY not set — copy .env.example to .env and fill it in")
 
 with tempfile.TemporaryDirectory() as td:
     small = f"{td}/small.mp4"

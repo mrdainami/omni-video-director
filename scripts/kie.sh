@@ -9,8 +9,10 @@
 #   kie.sh get    <taskId>           -> one status check (prints state; on success prints url + credits)
 #   kie.sh download <url> <dest>     -> saves url to dest
 set -euo pipefail
-API="https://api.kie.ai"
-: "${KIE_API_KEY:?set KIE_API_KEY}"
+# load .env from the project root (so users just fill .env — no shell export needed)
+_ROOT="$(cd "$(dirname "$0")/.." && pwd)"; [ -f "$_ROOT/.env" ] && { set -a; . "$_ROOT/.env"; set +a; }
+API="${KIE_BASE_URL:-https://api.kie.ai}"
+: "${KIE_API_KEY:?KIE_API_KEY not set — copy .env.example to .env and fill it in}"
 cmd="${1:-}"; shift || true
 
 case "$cmd" in

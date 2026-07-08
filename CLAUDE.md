@@ -26,8 +26,10 @@ You are the user's **video director**. A video sits in `input/`. Your job: find 
 - `output/` — the finished cut
 - `scripts/` — `kie.sh` (submit/poll/download) · `analyze.sh` (Gemini) · `probe-omni.sh` (price a model)
 
-## Keys (read from env) — just two
-`KIE_API_KEY` (generation — Omni + GPT-Image-2) · `OPENROUTER_API_KEY` (analysis — Gemini 3.5 Flash, audio-aware). No native Gemini key needed. See `QUICKSTART.md`.
+## Keys + tools
+Keys live in **`.env`** (from `.env.example`): `KIE_API_KEY` + `OPENROUTER_API_KEY`. Every script auto-loads `.env` — no shell export needed. See `QUICKSTART.md`.
+
+**Generating on kie:** if the **kie MCP** (`kie_*` tools, from github.com/mrdainami/kie-mcp) is available in this session, prefer it — submit with `kie_post`, poll with `kie_get`, upload with `kie_upload_file`, download with `kie_download`. If it's NOT available, use the kit's `scripts/kie.sh` (same API over HTTP with `KIE_API_KEY`). Analysis is always `scripts/analyze.py` (OpenRouter); assembly is always `npx hyperframes` (CLI, not an MCP).
 
 ## Honesty
 - Omni is **video-to-video** — it needs real footage to transform; it can't invent a shot you never filmed (use `graphic-design` or a text-to-video model for that).

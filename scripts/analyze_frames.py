@@ -9,11 +9,23 @@ the native path is better when you have a GEMINI_API_KEY.
 Usage: OPENROUTER_API_KEY=... python3 analyze_frames.py <video.mp4> [every_sec]
 Prints the beats JSON array [{start_sec,end_sec,beat_type,reason,suggestion}].
 """
-import base64, json, os, subprocess, sys, tempfile, urllib.request
+import base64, json, os, subprocess, sys, tempfile, urllib.request, pathlib
+
+def _load_env():
+    for d in (pathlib.Path.cwd(), pathlib.Path(__file__).resolve().parent.parent):
+        f = d / ".env"
+        if f.exists():
+            for ln in f.read_text().splitlines():
+                ln = ln.strip()
+                if ln and not ln.startswith("#") and "=" in ln:
+                    k, v = ln.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+            return
+_load_env()
 
 video = sys.argv[1]
 every = float(sys.argv[2]) if len(sys.argv) > 2 else 2.0
-key = os.environ.get("OPENROUTER_API_KEY") or sys.exit("set OPENROUTER_API_KEY")
+key = os.environ.get("OPENROUTER_API_KEY") or sys.exit("OPENROUTER_API_KEY not set — copy .env.example to .env and fill it in")
 
 with tempfile.TemporaryDirectory() as td:
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", video,

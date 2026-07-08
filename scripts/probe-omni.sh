@@ -3,7 +3,8 @@
 # Omni is not pre-priced; this prints the actual creditsConsumed. Needs a hosted source clip URL.
 # Usage: probe-omni.sh <hosted-source-video-url>
 set -euo pipefail
-: "${KIE_API_KEY:?set KIE_API_KEY}"
+_ROOT="$(cd "$(dirname "$0")/.." && pwd)"; [ -f "$_ROOT/.env" ] && { set -a; . "$_ROOT/.env"; set +a; }
+: "${KIE_API_KEY:?KIE_API_KEY not set — copy .env.example to .env and fill it in}"
 SRC="${1:?usage: probe-omni.sh <hosted source video url>  (upload with: kie.sh upload assets/<beat>/src.mp4)}"
 BODY=/tmp/avd_omni_probe.json
 cat > "$BODY" <<JSON
