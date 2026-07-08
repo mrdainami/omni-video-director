@@ -34,12 +34,18 @@ brew install ffmpeg jq        # media + json (macOS; use your package manager el
 node -v                        # need Node for the HyperFrames assembly step
 ```
 
-## 3. Drop your video in
-Put your clip in `input/` (mp4). **Omni is video-to-video** — it transforms footage you already shot, so give it real footage (you holding/rotating a prop, gesturing, or just talking). See `input/WHAT-TO-FILM.md`.
+## 3. Start a project + drop your video in
+Each video is its own project under `projects/`. Scaffold one, then add your clip:
+```bash
+bash scripts/new-project.sh my-video      # creates projects/my-video/
+```
+Put your clip in `projects/my-video/input/` (mp4/mov). **Omni is video-to-video** — give it real footage (holding/rotating a prop, gesturing, or just talking). See `projects/_TEMPLATE/input/WHAT-TO-FILM.md`.
 
 ## 4. Run it
-Open this folder in Claude Code and say:
-> **"Act as my video director — read the clip in input/ and propose a beat plan."**
+Open the folder in Claude Code and say:
+> **"Act as my video director — read the clip in projects/my-video and propose a beat plan."**
+
+(Or just say **"start a new project"** and it'll scaffold the folder and guide you.)
 
 Then:
 1. It writes `analysis/beat-plan.md` — **you approve/edit the beats**.

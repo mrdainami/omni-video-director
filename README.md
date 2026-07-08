@@ -5,7 +5,7 @@ Drop a video in. Claude finds where a **b-roll or graphic** belongs, writes the 
 You bring one thing every scene actually needs: **taste.** You pick the beats; the Director nails the prompt that makes the model behave.
 
 ```
-you: drop my-clip.mp4 in input/  →  "act as my video director"
+you: "start a new project" → drop your clip in projects/<name>/input/ → "act as my video director"
 claude: reads it → proposes a beat plan → you approve → generates → you watch → drops it in → output/
 ```
 

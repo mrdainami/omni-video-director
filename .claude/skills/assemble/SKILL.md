@@ -5,6 +5,8 @@ description: Cut a beat's segment out of the source, and drop the generated asse
 
 # assemble — cut + place (HyperFrames)
 
+> **Paths** — `input/`, `analysis/`, `assets/`, `output/` are relative to the **active project** `projects/<slug>/` (the video being edited). `hf/` stays shared at the repo root; copy it into the project only when a custom overlay comp is needed.
+
 Two jobs, one skill: **cut** the segment before generating, **place** the asset after the user approves.
 
 ## Cut (before generation)

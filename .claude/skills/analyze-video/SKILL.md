@@ -5,6 +5,8 @@ description: Watch a video with Gemini 3.5 Flash (frames + audio) and produce a 
 
 # analyze-video
 
+> **Paths** — `input/`, `analysis/`, `assets/`, `output/` are relative to the **active project** `projects/<slug>/` (the video being edited), not the repo root.
+
 Turns the raw clip in `input/` into `analysis/beat-plan.md` — the source of truth for the whole run.
 
 ## Run it

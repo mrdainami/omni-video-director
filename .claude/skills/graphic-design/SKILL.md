@@ -5,6 +5,8 @@ description: Generate an on-screen graphic (infographic, stat card, title, logo 
 
 # graphic-design — GPT-Image-2 stills (kie)
 
+> **Paths** — `input/`, `analysis/`, `assets/`, `output/` are relative to the **active project** `projects/<slug>/` (the video being edited), not the repo root.
+
 For anything with real text or exact logos — the things Omni garbles. Model: `gpt-image-2-image-to-image` (or `-text-to-image` with no refs).
 
 ## Before spending — the gate
@@ -31,6 +33,7 @@ Billed on submit. Show the estimate, get a go. (GPT-Image-2 ≈ a few credits pe
    - No refs? use `gpt-image-2-text-to-image` (drop `input_urls`).
 3. `TID=$(bash scripts/kie.sh submit assets/<beat>/graphic.json)` → `wait` → `download` to `assets/<beat>/out.png`.
    - GPT-Image-2's kie endpoint sometimes throws a transient `500` — just resubmit (a failed job is 0 credits). 4K queues slower; poll patiently.
+   - **How to wait (mandatory):** submit once, then run `kie.sh wait` in the **background** as the single poller. Do NOT hand-roll a `recordInfo` loop or post a message on every poll, and never state elapsed time you didn't actually measure. One "submitted, waiting" line, then silence until it resolves or errors (the harness re-invokes you when the background wait finishes). A live taskId is already billed — never resubmit it.
 4. Record `creditsConsumed`. Status → 👀 review.
 
 ## Text + logos (non-negotiable)

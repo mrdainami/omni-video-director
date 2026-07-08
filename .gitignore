@@ -1,13 +1,13 @@
 # secrets
 .env
 *.key
-# user media + generations (kit ships empty)
-input/*.mp4
-input/*.mov
-assets/*/
-output/*.mp4
-analysis/*.json
-analysis/beat-plan.md
+# user media + generations (kit ships empty) — per-project folders
+projects/*/input/*.mp4
+projects/*/input/*.mov
+projects/*/assets/*/
+projects/*/output/*.mp4
+projects/*/analysis/*.json
+projects/*/analysis/beat-plan.md
 *.taskid
 .gen.json
 # os
