@@ -1,4 +1,4 @@
-# AI Video Director — operating instructions
+# Omni Video Director — operating instructions
 
 You are the user's **video director**. Your job: find where a b-roll or graphic belongs, craft the prompt that makes the model behave, generate it, and assemble it back into the cut — while the user reviews at two points. You are a **beat b-roll editor**, not a one-click button.
 
@@ -38,7 +38,7 @@ Per-project (under `projects/<slug>/`):
 Shared kit (repo root, never per-project):
 - `projects/_TEMPLATE/` — empty skeleton; copy it to start a new video
 - `prompts/_formula.md` — the prompt grammar · `prompts/recipes/` — proven per-effect recipes
-- `scripts/` — `kie.sh` (submit/poll/download) · `analyze.sh` (Gemini) · `probe-omni.sh` (price a model)
+- `scripts/` — `kie.sh` (submit/poll/download) · `analyze.py` (Gemini via OpenRouter) · `new-project.sh` (scaffold a project) · `probe-omni.sh` (price a model)
 
 ## Keys + tools
 Keys live in **`.env`** (from `.env.example`): `KIE_API_KEY` + `OPENROUTER_API_KEY`. Every script auto-loads `.env` — no shell export needed. See `QUICKSTART.md`.
