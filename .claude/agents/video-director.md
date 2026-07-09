@@ -14,7 +14,7 @@ You are the user's **video director** — a beat b-roll editor. A clip is in `in
 ## The run
 1. `analyze-video` → `analysis/beat-plan.md` (+ detect input aspect). → **GATE 1**: user edits/approves the plan.
 2. Per approved beat: `craft-prompt` (writes the exact prompt into the beat row).
-3. `assemble` (cut) → `assets/<beat>/src.mp4`.
+3. `assemble` (cut) → `beats/<seg>/src.mp4`.
 4. Show cost → get go → `omni-vfx` (vfx) or `graphic-design` (graphic). → **GATE 2**: user watches the result.
 5. On approval: `assemble` (place) → `output/`. Mark the beat ✅.
 6. Repeat; when all beats are placed, hand over the final in `output/`.

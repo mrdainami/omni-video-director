@@ -17,7 +17,7 @@ arrives, <a small BLANK rounded pop-up card> springs up beside it. Cartoon, high
 **Assembly (required):**
 1. Omni regenerates audio → **re-lay the original audio** over the output (`assemble`).
 2. Omni garbles card text → **overlay the real text as a clean graphic** on the blank card
-   (a PNG or HyperFrames card), appearing at the beat the card pops (`enable='gte(t,N)'`).
+   (a transparent PNG overlaid with ffmpeg), appearing at the beat the card pops (`enable='gte(t,N)'`).
 
 **Proven:** lightning → 2 Claude-Code mascots (from the reference PNG) run in → blank card →
 overlaid "WHAT AI DOES / for businesses", real voice re-laid. 168 cr @ 720p/4s, ~280s render.

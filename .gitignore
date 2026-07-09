@@ -5,7 +5,11 @@
 projects/*/input/*.mp4
 projects/*/input/*.mov
 projects/*/assets/*/
+projects/*/beats/*/
 projects/*/output/*.mp4
+# but keep the empty _TEMPLATE skeleton so it ships in the repo
+!projects/_TEMPLATE/assets/refs/
+!projects/_TEMPLATE/beats/
 projects/*/analysis/*.json
 projects/*/analysis/beat-plan.md
 *.taskid
@@ -13,9 +17,3 @@ projects/*/analysis/beat-plan.md
 # os
 .DS_Store
 node_modules/
-
-# hf test media / renders
-hf/assets/*.mp4
-hf/assets/*.png
-hf/*.mp4
-hf/renders/

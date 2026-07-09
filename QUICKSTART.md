@@ -16,8 +16,7 @@ That's it — every script reads `.env` automatically (it's gitignored, so your 
 |---|---|---|
 | **kie** | Omni + GPT-Image-2 generation | `KIE_API_KEY` in `.env` (default) — **or** the optional [kie-mcp](https://github.com/mrdainami/kie-mcp) server, see below |
 | **OpenRouter** | Gemini reads your video | `OPENROUTER_API_KEY` in `.env`. Not an MCP — just a key. |
-| **HyperFrames** | assembles + renders the final | `npx hyperframes` (a CLI). Not an MCP — just needs Node. |
-| **ffmpeg** | cut clips + audio | a CLI. `brew install ffmpeg`. |
+| **ffmpeg** | cut clips + re-lay audio + overlay graphics + assemble the final | a CLI. `brew install ffmpeg`. Not an MCP. |
 
 **Optional — use the kie MCP instead of the key** (cleaner native tools in Claude Code):
 ```bash
@@ -31,7 +30,7 @@ With the MCP added, Claude uses `kie_*` tools directly; without it, the kit's `s
 ```bash
 # Claude Code: https://claude.com/claude-code
 brew install ffmpeg jq        # media + json (macOS; use your package manager elsewhere)
-node -v                        # need Node for the HyperFrames assembly step
+# (Node only needed if you opt into the kie MCP below — not required for assembly)
 ```
 
 ## 3. Start a project + drop your video in

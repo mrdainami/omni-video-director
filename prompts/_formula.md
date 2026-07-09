@@ -4,71 +4,96 @@ The single reason this kit beats prompting by hand: a **repeatable prompt gramma
 
 ---
 
-## A. Gemini Omni — video-to-video (REFERENCES + PRESERVE + CHANGE)
+## A. Gemini Omni — video-to-video (exact-seconds format)
 
-Omni transforms footage you already shot. It will change the *wrong* thing or break lip-sync unless you fence it. Every prompt has up to **three blocks**:
+Omni transforms footage you already shot. It will change the *wrong* thing or break lip-sync unless you fence it. The winning structure is five labelled blocks, and the effects are anchored to **exact clip-relative seconds** pulled from `analysis/words.json` (Whisper word timings). Timestamps beat narrative ("as he says…"): they hold lip-sync and land effects on-beat, and they keep Omni *compositing* onto the real footage instead of re-generating (and drifting) the whole frame.
 
 ```
-REFERENCES (image_urls, ≤7 — optional): any character / object / logo you want Omni to
-insert or match, as clean PNGs. In the CHANGE beats, refer to them: "looks EXACTLY like
-the reference image". (A good 3D reference → a matching 3D look in-scene.)
+TASK: one line naming the edit — "Apply graphic overlays…", "Apply visual transformations…",
+  "Composite animated 3D plush characters…".
 
-PRESERVE (do not change): the person's face + exact mouth movements + timing, their
-wardrobe, the room/background, the lighting/colour, the camera framing — plus any object
-whose shape must stay. "Keep everything not named below identical to the source."
+SCENE CONSTRAINTS: "Render in a single continuous shot with no scene cuts." + the do-not-change
+  list: the man, his real face, exact mouth movements, expressions, clothing, the background room,
+  lighting, camera framing, and the foreground RGB microphone. Name any object whose shape must
+  stay. "The ONLY additions are …" when compositing new elements.
 
-CHANGE — ONE beat, OR a numbered TIMED SEQUENCE of beats that follow the real motions:
-(1) EARLY / while <action>: <beat 1>.
-(2) LATER / the moment <trigger, e.g. he tilts the bottle>: <beat 2> [+ simultaneous <beat 2b>].
-(3) ...
-"Add nothing else."
+AUDIO: "Preserve the native source audio track and voiceover identically with zero modifications
+  or artificial generation." (Omni still emits a synthetic voice — the real audio is re-laid at
+  assembly regardless; this line just reduces how hard it fights you.)
+
+TIMING SEQUENCE (times are exact, synced to the source speech): one bullet per beat —
+  - [Xs-Ys]: On the words "<quote>" (spoken A.AA-B.BBs), <event>, anchored to his real motion
+    ("as he raises his hand and points"). Describe materials/optics + how it catches the existing
+    light. Say where it sits relative to his body.
+  All times are CLIP-RELATIVE (each cropped segment starts at 0) — subtract the segment's start
+  offset from the absolute word timings.
+
+OUTPUT REQUIREMENT (when relevant): "The final frame must be entirely clean of transient graphics,
+  returning to 100% pixel-fidelity matching the source video."
 ```
+
+
 
 ### Rules (all proven on real clips)
-1. **You can do MANY beats in one gen** — as long as each beat has its own moment/trigger ("first… then… as he tilts…"). Temporally-separated beats are reliable. Two **simultaneous** changes *can* work (proven: bottle→glass + beard together) but are riskier — test them. Don't pile unrelated changes on the *same instant* carelessly.
-2. **Timing = narrative, not timestamps.** Omni has no per-second parameter; it watches your footage and anchors each beat to your real motion (your swipe, your tilt). Direct order with words.
-3. **References insert characters/objects.** Put the mascot/product/logo in `image_urls` (≤7) and say "looks exactly like the reference image." Things already in the shot (a bottle → glass, your face → beard) need **no** reference — they're transforms of what's there.
-4. **PRESERVE is a fence, not a wish.** Whenever the subject is on screen, name *face + lip-sync + timing* every time, or the mouth desyncs.
-5. **Describe events, not adjectives.** "the can catches the key light as he turns it" beats "smooth, cinematic" (renders dead).
-6. **No legible text / fine logos in Omni** — it garbles type. Have Omni make a *blank* card/shape, then overlay real text as a clean graphic at assembly (GPT-Image-2 / HyperFrames).
-7. **Limits:** source window ≤10s, file ≤30s, aspect 16:9 or 9:16, `1080p` for edit-ready (720p to probe). **Omni regenerates audio → always re-lay your original audio at assembly.**
 
-### Worked example — PROVEN (mascot + bottle + beard, one 7s gen)
+1. **Exact seconds, clip-relative.** Read the beat's words from `words.json`, subtract the segment's in-point, and write real timecodes (`[3.1s-4.2s]`, `spoken 3.24-3.58s`). This is the single biggest quality lever — it locks lip-sync and lands effects on the word.
+2. **Anchor to word AND motion.** "On the word 'graphics', as he raises his hand and points, the chart appears above his fingertips." The motion anchor makes the composite track his body.
+3. **Many beats in one gen is fine** — each needs its own timecode window. Temporally-separated beats are reliable; simultaneous changes work but are riskier.
+4. **References insert characters/objects.** Put the mascot/product/logo in `image_urls` (≤7) and say "matching [Image N]" / "looks EXACTLY like [Image N]." Things already in the shot (bottle → glass) need no reference — they're transforms of what's there.
+5. **SCENE CONSTRAINTS is a fence, not a wish.** Name *face + exact mouth movements + expressions* every time the subject is on screen, or the mouth desyncs.
+6. **Describe events, not adjectives.** "the card catches the key light as it pops up" beats "smooth, cinematic" (renders dead).
+7. **Limits:** source window ≤10s, aspect 16:9 or 9:16, `duration` takes even-number buckets ("4"/"6"/"8"), `1080p` or 720p for the aspect ratio. Submit the ORIGINAL (unmuted) source so Omni locks onto the real voice/timing — never mute. **Omni regenerates audio → always re-lay your original audio at assembly.**
+
+
+
+### Worked example — PROVEN (seg1: wordmark → timeline → hand-anchored graphics, one 4.36s gen)
+
 ```
-REFERENCES (image_urls): [ the fluffy 3D mascot PNG ]
+TASK: Video-to-Video Edit. Apply graphic overlays to the provided source video based on the reference images.
 
-PRESERVE (do not change): the man's real face identity and his exact mouth movements and
-timing, his black sleeveless top, the wood-panel room and red poster behind him, the
-lighting, and the camera framing. Keep his hand and the bottle's shape, size, cap and
-motion exactly as in the source. Change ONLY the things below, at the moments described.
+SCENE CONSTRAINTS: Render in a single continuous shot with no scene cuts. Keep everything else the
+same. Do not change or re-render the man, his real face, exact mouth movements, expressions, clothing,
+background room, lighting, or the foreground RGB microphone.
 
-CHANGE — a timed sequence that follows his real actions:
-(1) EARLY, while he talks: a soft FLUFFY 3D mascot that looks EXACTLY like the reference
-image (plush orange-coral, fuzzy fabric, two dark square eyes, stubby legs) crawls up from
-behind onto his shoulder and perches. He glances at it. As he raises his hand to swipe, the
-mascot is startled and scurries away off his shoulder and out of frame — just BEFORE his
-hand reaches it.
-(2) LATER, the moment he raises and TILTS the blue bottle, TWO things happen together: the
-bottle turns into clear transparent glass (refraction, reflections, bright highlights, water
-sloshing), AND he now has a full thick beard — visible directly and through the glass.
-Before the tilt: bottle opaque, face clean-shaven. Only these change.
+AUDIO: Preserve the native source audio track and voiceover identically with zero modifications or
+artificial generation.
 
-One fluffy 3D mascot only; the bottle photoreal. Add nothing else.
+TIMING & GRAPHICS SEQUENCE (times are exact, synced to the source speech):
+- [0.0s-1.4s]: On the words "Google Omni" (spoken 0.0-0.56s), a glowing cyan-to-white neon wordmark
+  reading "GOOGLE OMNI" appears on a layer BEHIND his head and shoulders, glowing brighter with a soft
+  bloom and casting a faint cyan spill on his shoulders without covering his face, then fades out by 1.4s.
+- [1.34s-2.2s]: On the words "editing forever" (spoken 1.34-2.10s), insert an animated editing-timeline
+  strip matching [Image 2] across the lower-third, playhead scrubbing left-to-right, then fade out by 2.4s.
+- [3.1s-4.2s]: On the word "graphics" (spoken 3.24-3.58s), as he raises his hand and points, two soft
+  puffy 3D graphics matching [Image 3] appear DIRECTLY ABOVE his pointing hand/fingers — a rising bar
+  chart and a "10x FASTER / VIDEO EDITING" card — bob, then drift up out of the top of frame before the end.
+
+OUTPUT REQUIREMENT: The final frame must be entirely clean of transient graphics, returning to 100%
+pixel-fidelity matching the source video.
 ```
-→ Submit with `image_urls:[<mascot url>]`, `video_list:[{url,start,ends}]`, aspect 9:16, 720/1080p.
+
+→ Submit with `image_urls:[<ref urls>]`, `video_list:[{url,start,ends}]`, aspect 16:9, `resolution:"1080p"`, `duration:"4"`.
 
 ### Blank skeleton to fill
+
 ```
-REFERENCES (image_urls): [ <ref PNGs, or none> ]
-PRESERVE (do not change): <face + mouth timing + wardrobe + room + lighting + camera + any
-  object whose shape must stay>. Keep everything not named below identical to the source.
-CHANGE:
-(1) <when / trigger>: <beat 1, with materials/optics + how it catches the existing light>.
-(2) <when / trigger>: <beat 2> [+ <simultaneous beat 2b>].
-Add nothing else.
+TASK: <one line — overlay / transform / composite>.
+SCENE CONSTRAINTS: Render in a single continuous shot with no scene cuts. Do not change or re-render
+  the man, his real face, exact mouth movements, expressions, clothing, the room, lighting, camera
+  framing, or the foreground RGB microphone. <name any object whose shape must stay>.
+AUDIO: Preserve the native source audio track and voiceover identically with zero modifications or
+  artificial generation.
+TIMING SEQUENCE (times are exact, synced to the source speech):
+- [Xs-Ys]: On the words "<quote>" (spoken A.AA-B.BBs), <event + materials/optics + placement on body>.
+- [Xs-Ys]: On the words "<quote>" (spoken A.AA-B.BBs), <event>.
+OUTPUT REQUIREMENT: <clean final frame / 100% source fidelity — when relevant>.
 ```
 
+(All timecodes CLIP-RELATIVE — subtract the segment's start offset from the `words.json` timings.)
+
 ---
+
+
 
 ## B. GPT-Image-2 — the ROLE-MAP brief (still graphics)
 
@@ -86,6 +111,7 @@ GPT-Image-2 takes up to **16 reference images** and renders **real, legible text
 ```
 
 **Rules:**
+
 - **Text:** quote it exactly in the TEXT section with placement + colour. To exclude: "no text, no captions, no logos."
 - **Logos:** never model-drawn — pass a real transparent PNG as a numbered image, "use Image N exactly, keep shape + colour, do not redraw."
 - **Reference order is preserved** — address images by array position (`Image 1…N`).
