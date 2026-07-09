@@ -10,14 +10,14 @@ description: Generate the VFX version of a beat's segment with Gemini Omni (vide
 Transforms a real clip window while keeping the subject + lip-sync. Model: `gemini-omni-video`.
 
 ## Before spending — the gate
-Omni is billed on submit. **Show the user the cost estimate and get a go.** First time on a fresh account, run `bash scripts/probe-omni.sh` once to learn the real `creditsConsumed`, then quote from that.
+Omni is billed on submit. **Get the user's go before submitting.**
 
 ### Resolution — always the USER's choice (ask every generation)
-Before each Omni submit, **let the user pick the resolution** — `720p` · `1080p` · Don't silently default. Present the trade-off and a recommendation, then use whatever they choose:
-- `720p` 
-- `1080p` 
+Before generating, ask plainly: **"720p or 1080p?"** — nothing about which is cheaper, credit amounts, or a recommendation. Just the choice; use whatever they pick.
 
 **Aspect ratio is NOT a user choice** — it's auto-detected from the source (`ffprobe`) and must be `16:9` or `9:16` (map anything else to the nearest and say so). Always match the input video.
+
+**Segment sizing — cut to an EXACT even-second bucket (the sync rule):** one generation per full segment carrying 2–3 timed edits — never one gen per single effect (see the segmentation rule in the root `CLAUDE.md`). **Cut every segment to an EXACT `4` / `6` / `8` / `10` s length** (whichever bucket fully contains its action), and submit `duration` set to that same bucket. Proven on real clips: Omni returns the output at the `duration` bucket length — feed it a source of the *same* length and the output comes back matching (e.g. 10.0s→10.005s), so **lip-sync holds natively and NO time-lock/`setpts` is needed** — re-lay the original audio directly. Feed a fractional-length source (8.67s) and Omni floors it to the bucket (8.0s), compressing the video and desyncing the re-laid audio. So: pick the bucket first, cut the source to exactly that many seconds (snap the window to still cover the whole moment), submit with that `duration`.
 
 ## Inputs (from the beat)
 - The cut segment `beats/<seg>/src.mp4` (made by `assemble` — a ≤10s window).
@@ -33,13 +33,15 @@ Before each Omni submit, **let the user pick the resolution** — `720p` · `108
     "prompt":"TASK: ...\nSCENE CONSTRAINTS: ...\nAUDIO: ...\nTIMING SEQUENCE: - [Xs-Ys]: ...",
     "video_list":[{ "url":"<hosted src url>", "start":0, "ends":8 }],
     "image_urls":["<ref url>"],
+    "duration":"8",
     "aspect_ratio":"16:9",
     "resolution":"1080p" } }
 ```
    - `prompt`: the exact-seconds prompt from `beats/<seg>/prompt.txt` (see `prompts/_formula.md` §A).
-   - `video_list`: 1 clip, window `ends-start ≤ 10`. `duration` takes even-number buckets ("4"/"6"/"8") and is ignored when a video is given.
+   - `video_list`: 1 clip; `ends` = the source length = the SAME even bucket as `duration` (`ends-start` ∈ {4,6,8,10}, ≤10).
+   - `duration`: **REQUIRED**, and set to the bucket matching the exact source length (`"4"`/`"6"`/`"8"`/`"10"`). Do NOT omit it and do NOT let it differ from the source length — a mismatch makes Omni re-time the clip and desyncs the audio (see the sync rule above).
    - Quota: `images + videos×2 + character_ids ≤ 7`.
-   - `resolution`: `720p` (cheap probe) · `1080p` (edit-ready) · `4k` — the USER's choice (see above).
+   - `resolution`: `720p` · `1080p` · `4k` — the USER's choice (ask "720p or 1080p?"; see above).
 3. `TID=$(bash scripts/kie.sh submit beats/<seg>/omni.json)` → taskId persisted to `omni.taskid`.
 4. `bash scripts/kie.sh wait "$TID"` → the result URL → `kie.sh download <url> beats/<seg>/out-<res>.mp4`.
 5. Record `creditsConsumed` into `beats/<seg>/.gen.json`. Set beat status → 👀 review.

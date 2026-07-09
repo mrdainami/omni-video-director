@@ -21,15 +21,16 @@ Turns the raw clip in `input/` into `analysis/beat-plan.md` + `analysis/words.js
 4. Also record the **input aspect**: `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 input/<clip>.mp4` → note `16:9` or `9:16` (map anything else to nearest for Omni).
 
 ## beat-plan.md format
+**Group edits into full ≤10s SEGMENTS (2–3 edits each), one row per segment** — never one row/gen per single effect, and never cut a segment mid-action (see the segmentation rule in the root `CLAUDE.md`). Each segment = one Omni generation.
 ```
 # Beat plan — <clip>   (aspect: 16:9 · duration: 12:34)
 
-| # | start | end | type | what to add | why | prompt | status |
-|---|-------|-----|------|-------------|-----|--------|--------|
-| 1 | 00:07 | 00:11 | vfx | brand can swap | "our energy drink" | (craft-prompt fills) | 🔲 plan |
-| 2 | 00:22 | 00:25 | graphic | 3-stat card | reels off 3 numbers | (craft-prompt fills) | 🔲 plan |
+| seg | start | end | type | edits in this segment (2–3) | why | prompt | status |
+|-----|-------|-----|------|-----------------------------|-----|--------|--------|
+| 1 | 00:00 | 00:08 | vfx | (a) brand can swap · (b) 3-stat card floats in · (c) glowing wordmark | hook + product beat | (craft-prompt fills) | 🔲 plan |
+| 2 | 00:12 | 00:20 | vfx | (a) set change · (b) mascot walks in | co-pilot beat | (craft-prompt fills) | 🔲 plan |
 ```
-Status ladder: 🔲 plan → ✍️ prompted → 🎬 generating → 👀 review → ✅ placed.
+Each edit tagged with its own `type` (vfx | graphic) in the cell if they differ. Status ladder: 🔲 plan → ✍️ prompted → 🎬 generating → 👀 review → ✅ placed.
 
 ## Reality (be honest)
 - Gemini samples ~**1 FPS** → its timestamps are **±1s** — good for *marking* beats, useless for exact cuts. **Always take the real in/out from `words.json` (Whisper), not from Gemini.**

@@ -5,7 +5,7 @@ description: Turn an approved beat into the exact generation prompt — an exact
 
 # craft-prompt
 
-The reason this kit beats prompting by hand. Read `prompts/_formula.md` first — it holds both grammars. Then for each approved beat:
+The reason this kit beats prompting by hand. Read `prompts/_formula.md` first — it holds both grammars. **One prompt per SEGMENT, not per effect** — a segment is a full ≤10s window carrying 2–3 edits, and its prompt gets one TIMING SEQUENCE bullet per edit (see the segmentation rule in the root `CLAUDE.md`). Then for each approved segment:
 
 ## If `type: vfx` → Omni prompt (exact-seconds format)
 Read `prompts/_formula.md` §A — it has the full five-block structure + a proven worked example. The prompt has five labelled blocks — **TASK · SCENE CONSTRAINTS · AUDIO · TIMING SEQUENCE · OUTPUT REQUIREMENT** — and effects are pinned to **exact clip-relative seconds** from `analysis/words.json`. Then:

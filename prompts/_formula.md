@@ -36,7 +36,7 @@ OUTPUT REQUIREMENT (when relevant): "The final frame must be entirely clean of t
 
 ### Rules (all proven on real clips)
 
-1. **Exact seconds, clip-relative.** Read the beat's words from `words.json`, subtract the segment's in-point, and write real timecodes (`[3.1s-4.2s]`, `spoken 3.24-3.58s`). This is the single biggest quality lever — it locks lip-sync and lands effects on the word.
+1. **Exact seconds, clip-relative.** Read the beat's words from `words.json`, subtract the segment's in-point, and write real timecodes (`[3.1s-4.2s]`, `spoken 3.24-3.58s`). This is the single biggest quality lever — it locks lip-sync and lands effects on the word. **"Clip-relative" is a COMPUTATION step, not prompt text** — the header stays exactly `(times are exact, synced to the source speech)`. NEVER type the words "clip-relative" or "rel" into the prompt, and NEVER pin an effect's end to the raw fractional clip length (`8.67s`) — those re-base Omni's time grid and it re-times the whole clip, desyncing the re-laid audio. Use clean ranges and end persistent effects with **"to end"** (as the worked example does).
 2. **Anchor to word AND motion.** "On the word 'graphics', as he raises his hand and points, the chart appears above his fingertips." The motion anchor makes the composite track his body.
 3. **Many beats in one gen is fine** — each needs its own timecode window. Temporally-separated beats are reliable; simultaneous changes work but are riskier.
 4. **References insert characters/objects.** Put the mascot/product/logo in `image_urls` (≤7) and say "matching [Image N]" / "looks EXACTLY like [Image N]." Things already in the shot (bottle → glass) need no reference — they're transforms of what's there.
