@@ -5,7 +5,7 @@
 set -euo pipefail
 _ROOT="$(cd "$(dirname "$0")/.." && pwd)"; [ -f "$_ROOT/.env" ] && { set -a; . "$_ROOT/.env"; set +a; }
 : "${KIE_API_KEY:?KIE_API_KEY not set — copy .env.example to .env and fill it in}"
-SRC="${1:?usage: probe-omni.sh <hosted source video url>  (upload with: kie.sh upload assets/<beat>/src.mp4)}"
+SRC="${1:?usage: probe-omni.sh <hosted source video url>  (upload with: kie.sh upload beats/<seg>/src.mp4)}"
 BODY=/tmp/avd_omni_probe.json
 cat > "$BODY" <<JSON
 { "model":"gemini-omni-video",

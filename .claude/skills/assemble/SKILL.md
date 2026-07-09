@@ -1,67 +1,75 @@
 ---
 name: assemble
-description: Cut a beat's segment out of the source, and drop the generated asset back into the cut — built on HyperFrames (with ffmpeg for the raw trim). Use to extract src.mp4 before generation, and to place the approved asset after GATE 2.
+description: Cut a beat's segment out of the source, and drop the generated asset back into the cut — with ffmpeg (trim, audio re-lay, overlay, concat). Use to extract src.mp4 before generation, and to place the approved asset after GATE 2.
 ---
 
-# assemble — cut + place (HyperFrames)
+# assemble — cut + place (ffmpeg)
 
-> **Paths** — `input/`, `analysis/`, `assets/`, `output/` are relative to the **active project** `projects/<slug>/` (the video being edited). `hf/` stays shared at the repo root; copy it into the project only when a custom overlay comp is needed.
+> **Paths** — `input/`, `analysis/`, `beats/`, `assets/`, `output/` are relative to the **active project** `projects/<slug>/` (the video being edited). Per-beat video work lives in `beats/<seg>/`; generated graphics live in `assets/refs/`.
 
-Two jobs, one skill: **cut** the segment before generating, **place** the asset after the user approves.
+Two jobs, one skill: **cut** the segment before generating, **place** the asset after the user approves. All of it is plain **ffmpeg**.
 
 ## Cut (before generation)
-Extract the beat window into `assets/<beat>/src.mp4` (Omni needs a ≤10s clip). **KEEP the audio** (`-c:a aac`, never `-an`) — we re-lay it after Omni:
+Extract the beat window into `beats/<seg>/src.mp4` (Omni needs a ≤10s clip). **KEEP the audio** (`-c:a aac`, never `-an`) — we re-lay it after Omni:
 ```bash
 ffmpeg -i input/<clip>.mp4 -ss <start_sec> -to <end_sec> \
   -c:v libx264 -r 30 -g 30 -keyint_min 30 -pix_fmt yuv420p -c:a aac -movflags +faststart \
-  assets/<beat>/src.mp4
+  beats/<seg>/src.mp4
 ```
 Dense keyframes (`-g 30`) matter — sparse keyframes make the face freeze on seek downstream.
 
-> **Also keep the original audio around separately** — `ffmpeg -ss <start> -to <end> -i input/<clip>.mp4 -vn -c:a aac assets/<beat>/orig-audio.m4a` — you'll mux it back over the Omni output (next).
+> **Also keep the original audio around separately** — `ffmpeg -ss <start> -to <end> -i input/<clip>.mp4 -vn -c:a aac beats/<seg>/orig-audio.m4a` — you'll mux it back over the Omni output (next).
 
 ## Restore the real voice (right after an Omni clip lands) — REQUIRED for vfx
 **Omni regenerates the audio track — it will replace the speaker's voice with a synthetic one.** Never ship Omni's audio. Because Omni preserves timing, the original audio lines up exactly, so re-lay it:
 ```bash
-ffmpeg -i assets/<beat>/out.mp4 -i assets/<beat>/orig-audio.m4a \
-  -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -shortest assets/<beat>/out-voiced.mp4
+ffmpeg -i beats/<seg>/out.mp4 -i beats/<seg>/orig-audio.m4a \
+  -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -shortest beats/<seg>/out-voiced.mp4
 ```
 Use `out-voiced.mp4` as the beat's asset. (If the source window truly had no speech, Omni's audio can be dropped entirely instead.)
 
 ## Place (after GATE 2)
 Drop the approved asset back onto the timeline. Two cases:
-- **vfx (out.mp4)** — replaces the original window: the transformed segment takes the same in/out.
-- **graphic (out.png)** — overlays on top of the playing video for the beat's duration (full-screen or corner).
 
-Built on **HyperFrames** (deterministic HTML → MP4, seek-safe). The kit already has the project wired in **`hf/`**: `index.html` (a working composition template), `gsap.min.js` (bundled, offline), `kit.css` (brand tokens), `assets/` (drop clips/graphics here). No `init` needed.
-
-### The contract (from `hf/index.html`)
-- Root: `<div id="root" data-composition-id="main" data-start="0" data-duration="<sec>" data-width data-height>`.
-- Every timed element: `class="clip"` + `data-start` + `data-duration` + `data-track-index`. **No two clips share a track at overlapping times.**
-- **Base video** on track 0: `<video class="clip" src="assets/base.mp4" muted style="…object-fit:cover">`. The clip's **audio** goes on its own track: `<audio class="clip" data-track-index="5" data-volume="1" src="assets/base.mp4">`.
-- **Animated overlays** (the reason we use HyperFrames — Omni/GPT-Image can't animate): a `class="clip"` div on its own track; animate it in the GSAP timeline. **Count-ups are seek-safe** via `gsap.to({v:0},{v:100,onUpdate:…})`. Never use `rAF` / `Date.now` / `Math.random`.
-
-### Multi-beat assembly
-- **A single Omni'd clip + graphics** → put the clip as the base, overlay each graphic at its `data-start`. (Proven: base beat + a `0→100%` count-up card.)
-- **Stitch several transformed segments** → either (a) lay each transformed segment on track 0 back-to-back at its real in-point, or (b) ffmpeg-`concat` the segments into one base first, then overlay graphics in HF. (a) is cleaner for cross-fades.
-
-### Render
+### A. vfx (out-voiced.mp4) — replaces the original window
+The transformed segment takes the same in/out. Split the source around the window and concat:
 ```bash
-npx hyperframes validate hf                       # optional: catches contract errors
-npx hyperframes render hf -o /tmp/avd-hf/out.mp4 -q draft   # draft to check; drop -q for standard/high
-cp /tmp/avd-hf/out.mp4 output/<clip>-final.mp4
+# head: 0 → start, tail: end → duration  (scratch goes in beats/_scratch/, which is gitignored)
+mkdir -p beats/_scratch
+ffmpeg -i input/<clip>.mp4 -to <start> -c copy beats/_scratch/head.mp4
+ffmpeg -i input/<clip>.mp4 -ss <end>  -c copy beats/_scratch/tail.mp4
+printf "file '%s'\nfile '%s'\nfile '%s'\n" \
+  "$PWD/beats/_scratch/head.mp4" "$PWD/beats/<seg>/out-voiced.mp4" "$PWD/beats/_scratch/tail.mp4" > beats/_scratch/list.txt
+ffmpeg -f concat -safe 0 -i beats/_scratch/list.txt -c copy output/<clip>-final.mp4
 ```
-Draft render of a 7s clip ≈ **5 seconds**. Bump quality for the final: `-q high`.
+If the segments differ in codec/size and concat stutters, re-encode instead of `-c copy`, or use the `xfade` path below for a clean cross-dissolve at the seams.
 
-> ⚠️ **Render output to `/tmp`, not into a synced folder** — HyperFrames writes many temp frames; on Dropbox/iCloud that spikes RAM. Render to `/tmp`, copy only the MP4 back. (The kit lives on `~/Desktop`, which is fine to author in; keep render *output* in /tmp.)
-
-## Quick ffmpeg fallback (static overlay only)
-If you just need a static PNG on a clip (no animation), ffmpeg is fine:
+### B. graphic (`assets/refs/<name>.png`) — overlays on top of the playing video for the beat's window
+The graphic-design output for this beat (a transparent PNG in `assets/refs/`) is composited over the base for `[start,end]`. Add a quick fade so it doesn't pop:
 ```bash
-ffmpeg -i input/<clip>.mp4 -i assets/<beat>/out.png \
-  -filter_complex "[0][1]overlay=enable='between(t,<start>,<end>)'" output/draft.mp4
+ffmpeg -i input/<clip>.mp4 -i assets/refs/<name>.png -filter_complex \
+  "[1]format=rgba,fade=in:st=<start>:d=0.3:alpha=1,fade=out:st=<end-0.3>:d=0.3:alpha=1[g]; \
+   [0][g]overlay=enable='between(t,<start>,<end>)':x=(W-w)/2:y=(H-h)/2" \
+  -c:a copy output/<clip>-final.mp4
 ```
-Use HyperFrames for anything animated (count-ups, mascot slide/swipe, transitions, captions).
+- Corner instead of centered: set `x=W-w-40:y=H-h-40`.
+- Scale the graphic first if it's oversized: add `scale=iw*0.6:-1` in the `[1]` chain.
+
+## Transitions & sweeps (beat 1b and any seam) — ffmpeg `xfade`
+ffmpeg ships ~50 transitions (`fade`, `wipeleft`, `slideup`, `zoomin`, `dissolve`, `circleopen`…). Cross between two clips:
+```bash
+ffmpeg -i A.mp4 -i B.mp4 -filter_complex \
+  "[0][1]xfade=transition=zoomin:duration=0.5:offset=<A_dur-0.5>,format=yuv420p" out.mp4
+```
+Use this for the "editing effect" sweep and for smoothing the seams where a transformed segment meets the untouched footage.
+
+## Stitch several transformed segments
+Lay each transformed segment back at its real in-point (case A per beat), left to right, working through the beats in order — or, if many, re-encode all pieces to one common format and `concat`, then overlay the graphics (case B) last. `xfade` at the joins keeps cuts from jarring.
+
+## Notes
+- **Can't matte cleanly with ffmpeg** — you can't key the subject out to put a graphic *behind* them. Options: composite the graphic *in front* (case B), or add a kie background-removal step if "behind" is essential.
+- **Animated overlays** (bouncy slide-ins, count-ups) are painful in pure ffmpeg. Prefer generating motion *inside* Omni, or use a simple fade (case B). Fancy kinetic graphics are out of scope for the ffmpeg-only kit.
+- Render straight to `output/` — ffmpeg streams, so no temp-frame blowup.
 
 ## Status
 On place, set the beat → ✅ placed in `beat-plan.md`. When all beats are placed, the final is in `output/`.
