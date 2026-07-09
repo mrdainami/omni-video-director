@@ -9,13 +9,14 @@ description: Cut a beat's segment out of the source, and drop the generated asse
 
 Two jobs, one skill: **cut** the segment before generating, **place** the asset after the user approves. All of it is plain **ffmpeg**.
 
-## Cut (before generation)
-Extract the beat window into `beats/<seg>/src.mp4` (Omni needs a ≤10s clip). **KEEP the audio** (`-c:a aac`, never `-an`) — we re-lay it after Omni:
+## Cut (before generation) — to an EXACT even-second bucket (the sync rule)
+Extract the beat window into `beats/<seg>/src.mp4` at an **EXACT `4` / `6` / `8` / `10` s length** (pick the smallest bucket that fully covers the moment; snap the in-point so the whole action is inside). Cut by **duration** (`-t <bucket>`), not by an out-point, so the length lands exactly on the bucket. Omni is then submitted with `duration` = that same bucket, and returns the output at the same length → **sync holds natively, no time-lock needed** (see `omni-vfx`). **KEEP the audio** (`-c:a aac`, never `-an`) — we re-lay it after Omni:
 ```bash
-ffmpeg -i input/<clip>.mp4 -ss <start_sec> -to <end_sec> \
+ffmpeg -ss <start_sec> -i input/<clip>.mp4 -t <bucket>  # <bucket> ∈ 4 | 6 | 8 | 10
   -c:v libx264 -r 30 -g 30 -keyint_min 30 -pix_fmt yuv420p -c:a aac -movflags +faststart \
   beats/<seg>/src.mp4
 ```
+Confirm it landed exactly on the bucket: `ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 beats/<seg>/src.mp4`. Record the true source in-point (`<start_sec>`) — the transformed segment is placed back at that in-point at assembly.
 Dense keyframes (`-g 30`) matter — sparse keyframes make the face freeze on seek downstream.
 
 > **Also keep the original audio around separately** — `ffmpeg -ss <start> -to <end> -i input/<clip>.mp4 -vn -c:a aac beats/<seg>/orig-audio.m4a` — you'll mux it back over the Omni output (next).
