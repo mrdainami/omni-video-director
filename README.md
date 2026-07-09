@@ -3,21 +3,21 @@
 **Drop in a video and AI adds the graphics and effects for you** — turn a bottle transparent, make a little mascot climb on your shoulder, drop in animated stat cards, give yourself a beard. You pick *where*; the AI does the rest. You bring the video, it brings the effects.
 
 ## What you'll need
-Three sign-ups + two free tools. All spelled out below — it's fine if these are new to you.
+Three sign-ups + a couple of free tools. All spelled out below — it's fine if these are new to you.
 - **Claude Code** — the app you'll "talk" to (it runs everything).
 - **A [kie.ai](https://kie.ai?ref=41abfa41934c4f15a97d88d2d4f8162a) account** — lets Claude use **Google Omni** to add graphic effects to your work. *Pay-as-you-go: load a few dollars; each effect costs a little.*
 - **An [OpenRouter](https://openrouter.ai/keys) account** — lets you access models like **Google Gemini 3.5 Flash** to analyse your videos. *Costs pennies.*
-- **Node + ffmpeg** — two free background tools. Install once.
+- **ffmpeg + jq** — free background tools that stitch and read your files. Install once. (Node is optional — only if you later switch on the kie MCP; see QUICKSTART.)
 
 ## Part 1 — One-time setup (~10 min, only done once)
 
 **1. Install Claude Code** → https://claude.com/claude-code (follow their installer).
 
-**2. Install the two background tools.** Open the **Terminal** app (Mac: press ⌘+Space, type "Terminal", Enter), paste this, press Enter:
+**2. Install the background tools.** Open the **Terminal** app (Mac: press ⌘+Space, type "Terminal", Enter), paste this, press Enter:
 ```
-brew install node ffmpeg
+brew install ffmpeg jq
 ```
-*(No "brew"? Install it first from https://brew.sh. On Windows: get Node from nodejs.org and ffmpeg from ffmpeg.org.)*
+*(No "brew"? Install it first from https://brew.sh. On Windows: get ffmpeg from ffmpeg.org and jq from jqlang.github.io/jq.)*
 
 **3. Get the kit.** On this GitHub page click the green **"Use this template" → Create a new repository** (or just **Code → Download ZIP** and unzip it).
 
