@@ -5,7 +5,7 @@ kie bills on **submit** (a failed job is refunded). The exact number always prin
 
 | Model | Setting | Billed | Notes |
 |---|---|---|---|
-| `gemini-omni-video` | 720p · 4s window | **168 credits** | measured 2026-07-08 (probe). 1080p/4k cost more. |
+| `gemini-omni-video` | 720p/1080 · 4-10s window | each video is **168 credits** | measured 2026-07-08 |
 | `gpt-image-2` | 2K still (text or image-to-image) | **10 credits** | measured 2026-07-08 (mascot + stat card) |
 
 Rule: on a new model/resolution, run ONE cheapest probe (Omni: 720p/4s) and read
